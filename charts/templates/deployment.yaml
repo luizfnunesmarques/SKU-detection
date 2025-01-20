@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      securityContext:
+        runAsUser: 1001
+      initContainers:
+        - name: model-loader-init
+          imagePullPolicy: Never
+          image: model-loader:1
+          command: ["python3", "/home/appuser/app/download_model.py"]
+          env:
+            - name: MODEL_NAME
+              value: "yolov8n.pt"
+          volumeMounts:
+            - name: model-volume
+              mountPath: /models
+          securityContext:
+            runAsUser: 1001
+      containers:
+      - name: api
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: model-volume
+          mountPath: /models
+      volumes:
+      - name: model-volume
+        emptyDir: {}

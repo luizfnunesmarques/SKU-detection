@@ -1,0 +1,9 @@
+pytest==8.3.4
+requests==2.31.0
+fastapi==0.115.6
+uvicorn==0.28.0
+flake8==5.0.0
+ultralytics==8.3.49
+python-multipart==0.0.19
+numpy==2.0.2
+httpx
